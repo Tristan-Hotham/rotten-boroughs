@@ -1,0 +1,480 @@
+{
+ "n_A": 56,
+ "n_B": 30,
+ "n_C": 22,
+ "n_D": 21,
+ "seats_A": 111,
+ "seats_B_lost": 30,
+ "seats_weymouth_lost": 2,
+ "seats_removed": 143,
+ "seats_C": 44,
+ "seats_D": 21,
+ "seats_new_boroughs": 65,
+ "n_new": 43,
+ "n_new_wales": 2,
+ "n_A_cornwall": 13,
+ "n_B_cornwall": 4,
+ "seats_lost_cornwall": 30,
+ "pct_A_cornwall": 23.2,
+ "cornwall_mps_1821": 44,
+ "cornwall_mps_1832": 14,
+ "cornwall_boroughs_1529": 7,
+ "cornwall_boroughs_1584": 22,
+ "A_by_county": {
+  "Cornwall": 13,
+  "Wiltshire": 7,
+  "Sussex": 5,
+  "Hampshire": 4,
+  "Yorkshire": 3,
+  "Suffolk": 3,
+  "Devon": 3,
+  "Surrey": 3,
+  "Somerset": 3,
+  "Buckinghamshire": 2,
+  "Northamptonshire": 2,
+  "Kent": 2,
+  "Westmorland": 1,
+  "Shropshire": 1,
+  "Norfolk": 1,
+  "Dorset": 1,
+  "Lancashire": 1,
+  "Herefordshire": 1
+ },
+ "n_A_wiltshire": 7,
+ "n_A_south": 47,
+ "n_new_north_mid_wales": 32,
+ "median_lat_A": 51.09,
+ "median_lat_new": 53.39,
+ "lat_gap_km": 254,
+ "n_A_sw_region": 27,
+ "n_A_voters_known": 34,
+ "A_voters_known_total": 2508,
+ "A_voters_known_seats": 67,
+ "A_voters_median": 39.0,
+ "A_voters_per_mp_median": 23.0,
+ "n_A_under_50_voters": 18,
+ "n_A_under_20_voters": 7,
+ "smallest_electorates": [
+  {
+   "name": "Gatton",
+   "voters": 7,
+   "seats": 2
+  },
+  {
+   "name": "Mitchell",
+   "voters": 7,
+   "seats": 2
+  },
+  {
+   "name": "St Germans",
+   "voters": 7,
+   "seats": 2
+  },
+  {
+   "name": "Old Sarum",
+   "voters": 11,
+   "seats": 2
+  },
+  {
+   "name": "Winchelsea",
+   "voters": 11,
+   "seats": 2
+  },
+  {
+   "name": "Newport (Cornwall)",
+   "voters": 12,
+   "seats": 2
+  },
+  {
+   "name": "West Looe",
+   "voters": 19,
+   "seats": 2
+  },
+  {
+   "name": "Bramber",
+   "voters": 20,
+   "seats": 2
+  }
+ ],
+ "seats_of_smallest_ten": 20,
+ "voters_of_smallest_ten": 139,
+ "oldsarum_voters": 11,
+ "oldsarum_pop1831": 0,
+ "oldsarum_houses1831": 3,
+ "oldsarum_pop_today": 0,
+ "gatton_voters": 7,
+ "gatton_pop1831": 146,
+ "gatton_houses1831": 23,
+ "gatton_pop_today": null,
+ "dunwich_voters": 32,
+ "dunwich_pop1831": 232,
+ "dunwich_houses1831": 44,
+ "dunwich_pop_today": 116,
+ "mitchell_voters": 7,
+ "mitchell_pop1831": 90,
+ "mitchell_houses1831": 23,
+ "mitchell_pop_today": null,
+ "stgermans_voters": 7,
+ "stgermans_pop1831": 672,
+ "stgermans_houses1831": 99,
+ "stgermans_pop_today": 1454,
+ "newtown_voters": 23,
+ "newtown_pop1831": 68,
+ "newtown_houses1831": 14,
+ "newtown_pop_today": null,
+ "bossiney_voters": 25,
+ "bossiney_pop1831": 308,
+ "bossiney_houses1831": 67,
+ "bossiney_pop_today": null,
+ "camelford_voters": 31,
+ "camelford_pop1831": 597,
+ "camelford_houses1831": 110,
+ "camelford_pop_today": 3378,
+ "fowey_voters": 331,
+ "fowey_pop1831": 1600,
+ "fowey_houses1831": 340,
+ "fowey_pop_today": 2457,
+ "n_A_pop1831_known": 41,
+ "A_pop1831_median": 888.0,
+ "A_pop1831_total": 35753,
+ "A_pop1831_total_seats": 81,
+ "n_A_pop1831_under_1000": 27,
+ "n_top1801_table": 30,
+ "n_top30_1801_new_1832": 12,
+ "top1801_new": [
+  {
+   "name": "Manchester",
+   "pop1801": 84020,
+   "rank": 2
+  },
+  {
+   "name": "Birmingham",
+   "pop1801": 75670,
+   "rank": 4
+  },
+  {
+   "name": "Leeds",
+   "pop1801": 53162,
+   "rank": 6
+  },
+  {
+   "name": "Sheffield",
+   "pop1801": 31314,
+   "rank": 11
+  },
+  {
+   "name": "Stoke-upon-Trent",
+   "pop1801": 16414,
+   "rank": 17
+  },
+  {
+   "name": "Ashton-under-Lyne",
+   "pop1801": 15632,
+   "rank": 20
+  },
+  {
+   "name": "Stockport",
+   "pop1801": 14830,
+   "rank": 24
+  },
+  {
+   "name": "Wolverhampton",
+   "pop1801": 12565,
+   "rank": 26
+  },
+  {
+   "name": "Bolton",
+   "pop1801": 12549,
+   "rank": 27
+  },
+  {
+   "name": "Sunderland",
+   "pop1801": 12412,
+   "rank": 28
+  },
+  {
+   "name": "Oldham",
+   "pop1801": 12024,
+   "rank": 29
+  },
+  {
+   "name": "Blackburn",
+   "pop1801": 11980,
+   "rank": 30
+  }
+ ],
+ "top1801_new_pop_total": 352572,
+ "manchester_pop1801": 84020,
+ "birmingham_pop1801": 75670,
+ "leeds_pop1801": 53162,
+ "sheffield_pop1801": 31314,
+ "manchester_rank1801": 2,
+ "manchester1801_vs_A_pop1831_x": 2.4,
+ "A_today_class": {
+  "Town": 27,
+  "Village": 23,
+  "Part of a larger town": 4,
+  "Hamlet": 1,
+  "Deserted site": 1
+ },
+ "n_A_town": 27,
+ "n_A_village": 23,
+ "n_A_hamlet": 1,
+ "n_A_absorbed": 4,
+ "n_A_deserted": 1,
+ "n_A_village_or_smaller": 25,
+ "n_B_town": 30,
+ "A_absorbed_names": [
+  "East Looe",
+  "Newport (Cornwall)",
+  "Plympton Erle",
+  "West Looe"
+ ],
+ "A_village_names": [
+  "Aldborough",
+  "Beeralston",
+  "Bletchingley",
+  "Bossiney",
+  "Bramber",
+  "Castle Rising",
+  "Corfe Castle",
+  "Downton",
+  "Dunwich",
+  "Gatton",
+  "Great Bedwyn",
+  "Heytesbury",
+  "Hindon",
+  "Ilchester",
+  "Milborne Port",
+  "Mitchell",
+  "Orford",
+  "St Germans",
+  "St Mawes",
+  "Stockbridge",
+  "Tregony",
+  "Weobley",
+  "Winchelsea"
+ ],
+ "A_hamlet_names": [
+  "Newtown (Isle of Wight)"
+ ],
+ "A_town_names": [
+  "Aldeburgh",
+  "Amersham",
+  "Appleby",
+  "Bishop's Castle",
+  "Boroughbridge",
+  "Brackley",
+  "Callington",
+  "Camelford",
+  "East Grinstead",
+  "Fowey",
+  "Haslemere",
+  "Hedon",
+  "Higham Ferrers",
+  "Lostwithiel",
+  "Ludgershall",
+  "Minehead",
+  "New Romney",
+  "Newton",
+  "Okehampton",
+  "Queenborough",
+  "Saltash",
+  "Seaford",
+  "Steyning",
+  "Wendover",
+  "Whitchurch",
+  "Wootton Bassett",
+  "Yarmouth (Isle of Wight)"
+ ],
+ "n_A_pop_today": 48,
+ "A_pop_today_total": 284604,
+ "A_pop_today_median": 3273.0,
+ "n_A_pop_today_census_bua": 17,
+ "n_A_pop_today_wd_parish": 30,
+ "n_A_under_1000_today": 11,
+ "n_A_over_10000_today": 9,
+ "n_new_pop_today": 40,
+ "new_pop_today_median": 111421.5,
+ "manchester_bua_2021": 469193,
+ "birmingham_bua_2021": 1111347,
+ "leeds_bua_2021": 532756,
+ "A_today_vs_manchester_pct": 60.7,
+ "A_today_vs_birmingham_pct": 25.6,
+ "new_pop_today_total": 7150526,
+ "new_vs_A_today_x": 25,
+ "growth_excluded": [
+  "Heytesbury"
+ ],
+ "n_A_growth": 33,
+ "A_growth_median": 4.6,
+ "n_A_shrank": 7,
+ "n_A_grew_5x": 16,
+ "A_shrank": [
+  {
+   "name": "Castle Rising",
+   "pop1831": 888,
+   "pop_today": 225,
+   "source": "civil parish population on Wikidata (Q42"
+  },
+  {
+   "name": "Dunwich",
+   "pop1831": 232,
+   "pop_today": 116,
+   "source": "civil parish population on Wikidata (Q18"
+  },
+  {
+   "name": "Orford",
+   "pop1831": 1302,
+   "pop_today": 713,
+   "source": "civil parish population on Wikidata (Q24"
+  },
+  {
+   "name": "Hindon",
+   "pop1831": 921,
+   "pop_today": 580,
+   "source": "civil parish population on Wikidata (Q43"
+  },
+  {
+   "name": "Tregony",
+   "pop1831": 1127,
+   "pop_today": 768,
+   "source": "civil parish population on Wikidata (Q78"
+  },
+  {
+   "name": "Winchelsea",
+   "pop1831": 772,
+   "pop_today": 600,
+   "source": "civil parish population on Wikidata (Q10"
+  },
+  {
+   "name": "Stockbridge",
+   "pop1831": 663,
+   "pop_today": 592,
+   "source": "civil parish population on Wikidata (Q54"
+  }
+ ],
+ "A_top_growth": [
+  {
+   "name": "Amersham",
+   "pop1831": 1347,
+   "pop_today": 16618,
+   "x": 12.3
+  },
+  {
+   "name": "Wendover",
+   "pop1831": 802,
+   "pop_today": 9653,
+   "x": 12.0
+  },
+  {
+   "name": "Newton",
+   "pop1831": 2139,
+   "pop_today": 25363,
+   "x": 11.9
+  },
+  {
+   "name": "Ludgershall",
+   "pop1831": 535,
+   "pop_today": 5477,
+   "x": 10.2
+  },
+  {
+   "name": "Saltash",
+   "pop1831": 1637,
+   "pop_today": 16285,
+   "x": 9.9
+  },
+  {
+   "name": "Higham Ferrers",
+   "pop1831": 965,
+   "pop_today": 9446,
+   "x": 9.8
+  }
+ ],
+ "A_growth_spearman": 0.54,
+ "A_growth_spearman_p": 0.0011,
+ "england_2021": 56490048,
+ "wales_2021": 3107494,
+ "england_1801": 8331434,
+ "england_growth_1801_2021": 6.8,
+ "A_n_income": 56,
+ "A_income_vs_ring_median": 0.0,
+ "A_n_richer": 26,
+ "A_pct_richer": 46,
+ "A_income_median": 53064,
+ "B_n_income": 30,
+ "B_income_vs_ring_median": -4.1,
+ "B_n_richer": 11,
+ "B_pct_richer": 37,
+ "B_income_median": 51646,
+ "new_n_income": 43,
+ "new_income_vs_ring_median": -4.8,
+ "new_n_richer": 10,
+ "new_pct_richer": 23,
+ "new_income_median": 45039,
+ "A_income_wilcoxon_p": 0.8,
+ "A_vs_new_income_mw_p": 0.028,
+ "new_income_wilcoxon_p": 0.00045,
+ "ew_msoa_income_median": 52671,
+ "n_A_above_ew_median": 29,
+ "n_new_above_ew_median": 9,
+ "A_richest": [
+  {
+   "name": "Castle Rising",
+   "pct": 49.1
+  },
+  {
+   "name": "Amersham",
+   "pct": 21.6
+  },
+  {
+   "name": "Ilchester",
+   "pct": 19.8
+  },
+  {
+   "name": "Wendover",
+   "pct": 18.1
+  },
+  {
+   "name": "Weobley",
+   "pct": 17.6
+  }
+ ],
+ "A_poorest": [
+  {
+   "name": "Yarmouth (Isle of Wight)",
+   "pct": -24.7
+  },
+  {
+   "name": "Aldeburgh",
+   "pct": -17.6
+  },
+  {
+   "name": "Gatton",
+   "pct": -17.4
+  },
+  {
+   "name": "Minehead",
+   "pct": -17.2
+  },
+  {
+   "name": "Queenborough",
+   "pct": -15.8
+  }
+ ],
+ "Atown_income_vs_ring_median": -1.1,
+ "Atown_n_income": 27,
+ "Avillage_income_vs_ring_median": 2.1,
+ "Avillage_n_income": 24,
+ "n_category_members": 153,
+ "n_category_constituency_articles": 66,
+ "n_articles_used_A": 55,
+ "n_placed": 130,
+ "n_rows": 130,
+ "place_methods": {
+  "OS Open Names": 129,
+  "Wikipedia (Old Sarum hill)": 1
+ },
+ "retrieved": "27 October 2026"
+}
