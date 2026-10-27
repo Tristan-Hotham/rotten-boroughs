@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rotten Boroughs</title>
+<meta name="description" content="Before 1832, places like Old Sarum, Gatton and Dunwich sent two MPs to Westminster while Manchester and Birmingham had none. Where are the rotten boroughs now? Every borough in the Reform Act's schedules, mapped, with their 1831 voters and their people and incomes today.">
+<meta property="og:title" content="Rotten boroughs: where are they now?">
+<meta property="og:description" content="Gatton had {{gatton_voters|int}} voters and two MPs; Manchester had {{manchester_pop1801|int}} people in 1801 and none. Today {{n_A_village_or_smaller|int}} of the {{n_A|int}} abolished boroughs are villages, a hamlet or an empty hill.">
+<meta property="og:image" content="https://tristan-hotham.github.io/rotten-boroughs/header.png">
+<meta property="og:url" content="https://tristan-hotham.github.io/rotten-boroughs/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800;9..144,900&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+/* A Georgian poll book: cream paper, claret for the abolished boroughs, dark ink-blue for the new towns of 1832. */
+:root{
+  --bg:#F4EDDC; --panel:#EADFC6; --fg:#211B16; --muted:#6A5E4E; --rule:#D9CBAE; --card:#FBF6EA; --border:#C8B690;
+  --hot:#8E1B2E; --halfc:#C47A82; --oth:#1F3A5F; --gold:#A8741A;
+  --c-town:#3A3029; --c-vill:#B4802A; --c-ham:#6E8A4B; --c-part:#6D82A0; --c-site:#8E1B2E;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1A1613; --panel:#241E1A; --fg:#EFE6D6; --muted:#B0A391; --rule:#3A322B; --card:#211B17; --border:#4A4037;
+  --hot:#E0657A; --halfc:#B9878D; --oth:#7FA6D8; --gold:#E0A84A;
+  --c-town:#D9CDB8; --c-vill:#E0A84A; --c-ham:#9DBB79; --c-part:#93A9C8; --c-site:#E0657A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1A1613; --panel:#241E1A; --fg:#EFE6D6; --muted:#B0A391; --rule:#3A322B; --card:#211B17; --border:#4A4037;
+  --hot:#E0657A; --halfc:#B9878D; --oth:#7FA6D8; --gold:#E0A84A;
+  --c-town:#D9CDB8; --c-vill:#E0A84A; --c-ham:#9DBB79; --c-part:#93A9C8; --c-site:#E0657A; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 18px/1.62 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));overflow-x:hidden}
+.wrap{max-width:680px;margin:0 auto;padding-block:28px 64px}
+.wrap .bleed{width:min(1080px,calc(100vw - 32px));margin-left:calc((100% - min(1080px,100vw - 32px))/2);margin-right:0}
+a{color:inherit;text-decoration-color:var(--hot);text-underline-offset:3px}
+.kicker{font:500 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.kicker b{background:var(--hot);color:#fff;padding:5px 8px;font-weight:500}
+header.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 24px;align-items:end;border-bottom:6px double var(--fg);padding-bottom:22px;margin-top:18px}
+h1{font:900 clamp(46px,11.5vw,92px)/.86 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance;font-variation-settings:"SOFT" 50}
+h1 em{font-style:normal;color:var(--hot)}
+h1 small{display:block;font:800 clamp(24px,5.4vw,40px)/1.05 var(--display);letter-spacing:0;margin-top:10px;color:var(--muted)}
+.mark{width:clamp(92px,21vw,180px);height:auto;display:block}
+.dek{grid-column:1/-1;font-size:21px;line-height:1.42;margin:8px 0 0;max-width:48ch}
+.byline{font:400 13px/1.4 var(--mono);color:var(--muted);margin-top:14px}
+h2{font:800 34px/1.04 var(--display);letter-spacing:-.01em;margin:52px 0 10px;text-wrap:balance}
+h2 .n{font:500 13px/1 var(--mono);color:var(--hot);display:block;letter-spacing:.1em;margin-bottom:10px}
+h3{font:600 20px/1.25 var(--display);margin:28px 0 6px}
+p{margin:0 0 16px}
+.lede::first-letter{font:900 72px/.8 var(--display);float:left;margin:6px 10px 0 0;color:var(--hot)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin:26px 0 8px}
+.stats div{background:var(--card);padding:14px 12px}
+.stats b{display:block;font:900 clamp(28px,6vw,40px)/1 var(--display);color:var(--fg)}
+.stats b.h{color:var(--hot)}
+.stats span{font:400 12px/1.35 var(--mono);color:var(--muted);display:block;margin-top:6px}
+@media (max-width:600px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.figure{margin:26px 0 30px}
+.fig-h{font:600 19px/1.25 var(--display);margin:0 0 4px}
+.fig-sub{font:400 13px/1.45 var(--mono);color:var(--muted);margin:0 0 12px}
+.src{font:400 12px/1.45 var(--mono);color:var(--muted);margin-top:10px}
+.chart{width:100%;position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{font-family:var(--mono);fill:var(--fg)}
+.lab{font-size:12px}.lab.m{fill:var(--muted)}.lab.b{font-weight:500}.lab.s{font-size:11px}.lab.h{fill:var(--hot)}.lab.o{fill:var(--oth)}
+.tip{position:absolute;pointer-events:none;background:var(--fg);color:var(--bg);font:400 12px/1.45 var(--mono);padding:8px 10px;border-radius:3px;max-width:270px;z-index:1000;transform:translate(-50%,calc(-100% - 12px));display:none}
+.tip b{font-weight:500}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
+.btn{font:500 12px/1 var(--mono);background:var(--card);color:var(--fg);border:1px solid var(--border);border-radius:3px;padding:8px 10px;cursor:pointer;min-height:36px}
+.btn[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.btn:focus-visible,input:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:3px;overflow:hidden;max-width:100%;flex-wrap:wrap}
+.seg .btn{border:0;border-radius:0;border-right:1px solid var(--border)}
+.seg .btn:last-child{border-right:0}
+#lmap{height:640px;border:1px solid var(--border);background:var(--panel);border-radius:2px}
+@media (max-width:600px){#lmap{height:500px}}
+.leaflet-container{font:400 12px/1.4 var(--mono);background:var(--panel)}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--card);color:var(--fg);border-radius:3px;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.leaflet-popup-content{margin:12px 14px;font:400 12.5px/1.45 var(--mono);min-width:220px}
+.leaflet-container a.leaflet-popup-close-button{color:var(--muted)}
+.leaflet-bar a,.leaflet-bar a:hover{background:var(--card);color:var(--fg);border-bottom-color:var(--border)}
+.leaflet-control-attribution{background:color-mix(in srgb,var(--card) 85%,transparent)!important;color:var(--muted)}
+.leaflet-control-attribution a{color:var(--fg)}
+.pop b.t{font:600 17px/1.2 var(--display);display:block;margin-bottom:2px}
+.pop .c{color:var(--muted);margin-bottom:6px}
+.pop dl{display:grid;grid-template-columns:auto 1fr;gap:1px 10px;margin:4px 0 6px}
+.pop dt{color:var(--muted)}.pop dd{margin:0}
+.pop .note{font-size:11.5px;color:var(--muted);margin:4px 0}
+.legend{display:flex;gap:6px 14px;flex-wrap:wrap;font:400 12px/1.3 var(--mono);color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.pull{font:600 26px/1.25 var(--display);border-left:6px solid var(--hot);padding:4px 0 4px 18px;margin:30px 0}
+.note{background:var(--panel);border:1px solid var(--rule);padding:14px 16px;font-size:16px;margin:22px 0}
+.note h3{margin-top:0}
+table.t{width:100%;border-collapse:collapse;font:400 13px/1.35 var(--mono)}
+table.t th{text-align:left;font-weight:500;color:var(--muted);border-bottom:2px solid var(--fg);padding:6px 8px 6px 0;cursor:pointer;white-space:nowrap}
+table.t td{border-bottom:1px solid var(--rule);padding:7px 8px 7px 0;vertical-align:top}
+table.t td.num,table.t th.num{text-align:right;white-space:nowrap}
+table.t td small{color:var(--muted);display:block}
+table.t .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.tablewrap{overflow-x:auto;max-height:560px;overflow-y:auto;border-bottom:1px solid var(--rule)}
+@media (max-width:600px){table.t .wide{display:none}}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}
+@media (max-width:600px){.cards{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--hot);padding:12px 14px;font:400 13px/1.5 var(--mono)}
+.card b{font:600 19px/1.2 var(--display);display:block;margin-bottom:2px}
+.card .big{font:900 26px/1.05 var(--display);margin:8px 0 2px}
+.card .big span{color:var(--muted);font:400 12px/1.35 var(--mono);display:block;margin-top:3px}
+.cta{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+.cta a{font:500 13px/1 var(--mono);text-decoration:none;border:1px solid var(--fg);padding:11px 14px;border-radius:3px}
+.cta a.p{background:var(--hot);border-color:var(--hot);color:#fff}
+footer{border-top:6px double var(--fg);margin-top:56px;padding-top:16px;font:400 13px/1.55 var(--mono);color:var(--muted)}
+footer p{margin:0 0 10px}
+.theme{position:fixed;right:12px;bottom:12px;z-index:1002}
+@media print{.theme,.controls{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kicker"><b>Data study</b><span>History × data</span><span>England and Wales, 1831 to 2021</span></div>
+<header class="hero">
+  <h1>Rotten <em>boroughs</em><small>Where are they now?</small></h1>
+  <svg class="mark" viewBox="0 0 200 200" aria-hidden="true"><g id="heroMark"></g></svg>
+  <p class="dek">Before 1832, a grassy hill near Salisbury and a Surrey park with a few houses each sent two MPs to Westminster, while Manchester and Birmingham sent none. The Reform Act of 1832 swept {{n_A|int}} of these boroughs away. I mapped every borough the Act named and asked what became of them.</p>
+</header>
+<div class="byline">Dr Tristan Hotham, Independent researcher · October 2026 · Data: Wikipedia, Wikidata, OS Open Names, ONS Census 2021 and income estimates</div>
+
+<div class="stats">
+  <div><b class="h">{{n_A|int}}</b><span>boroughs abolished outright in 1832, with {{seats_A|int}} MPs between them</span></div>
+  <div><b class="h">{{gatton_voters|int}}</b><span>voters at Gatton in 1831, for two MPs (Mitchell and St Germans also {{mitchell_voters|int}})</span></div>
+  <div><b>{{n_top30_1801_new_1832|int}} of 30</b><span>of England's largest towns in 1801 got MPs of their own only in 1832</span></div>
+  <div><b class="h">{{n_A_village_or_smaller|int}} of {{n_A|int}}</b><span>abolished boroughs are villages, a hamlet or an empty hill today</span></div>
+</div>
+
+<p class="lede">At the general election of 1831, Old Sarum returned two Members of Parliament. It had {{oldsarum_voters|int}} voters, all landowners who lived elsewhere, and no residents at all: the town had moved down the hill to Salisbury six centuries earlier. Gatton in Surrey had {{gatton_voters|int}} qualified voters. Dunwich in Suffolk, a medieval port that had largely fallen into the sea, had {{dunwich_voters|int}}. Meanwhile Manchester, the second largest town in England with {{manchester_pop1801|int}} people at the 1801 census, had no MP of its own.</p>
+<p>These were the rotten boroughs, and the Representation of the People Act 1832, the Great Reform Act, was written to abolish them. Its Schedule A listed {{n_A|int}} boroughs to lose all their MPs; Schedule B listed {{n_B|int}} more to lose one of their two. Schedules C and D handed seats to {{n_new|int}} towns that had never had their own.</p>
+<p>Almost two hundred years on, I wanted to know what those places are now. Did the rotten boroughs stay tiny, or did some grow into proper towns? Are they richer or poorer than the places around them? And how lopsided was the old map, really?</p>
+
+<h2><span class="n">01 · The map</span>Out with the old, in with the new</h2>
+<p>The map shows every borough in the Act's schedules. Claret dots are the {{n_A|int}} Schedule A boroughs that lost both members (Higham Ferrers had only one). Hollow claret rings are the {{n_B|int}} Schedule B boroughs cut to one member. Blue dots are the {{n_new|int}} new boroughs of Schedules C and D, {{n_new_wales|int}} of them in Wales. Tap any dot for its 1831 figures and what it is today.</p>
+<div class="figure bleed">
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Which boroughs to show">
+      <button class="btn" data-show="all" aria-pressed="true">All</button>
+      <button class="btn" data-show="A" aria-pressed="false">Abolished (A)</button>
+      <button class="btn" data-show="B" aria-pressed="false">Halved (B)</button>
+      <button class="btn" data-show="CD" aria-pressed="false">New in 1832 (C, D)</button>
+    </div>
+    <div class="seg" role="group" aria-label="Colour abolished boroughs by">
+      <button class="btn" data-col="sched" aria-pressed="true">By schedule</button>
+      <button class="btn" data-col="today" aria-pressed="false">What it is today</button>
+    </div>
+  </div>
+  <div id="lmap" role="region" aria-label="Map of England and Wales with the boroughs abolished, halved and created by the Reform Act 1832"></div>
+  <div class="legend" id="legend"></div>
+  <div class="src">Places: OS Open Names populated places ({{place_methods.OS Open Names|int}} boroughs), except Old Sarum, placed on the hill from Wikipedia's coordinates for the site. Schedules: Wikipedia, List of constituencies enfranchised and disfranchised by the Reform Act 1832. Click the map to let the scroll wheel zoom it.</div>
+</div>
+<p>The pattern needs no statistics. {{n_A_south|int}} of the {{n_A|int}} abolished boroughs lie in today's South West, South East and East of England regions. {{n_new_north_mid_wales|int}} of the {{n_new|int}} new boroughs lie in the North, the Midlands or Wales. The median abolished borough sits at latitude {{median_lat_A|f2}}° north, about the line of Salisbury; the median new borough at {{median_lat_new|f2}}°, about the line of Sheffield, some {{lat_gap_km|int}} km further north. Political weight moved from the old market towns and decayed ports of the south to the mill and mining towns of the north.</p>
+<p>The arithmetic matches the Act. Schedule A removed {{seats_A|int}} seats, Schedule B {{seats_B_lost|int}}, and Weymouth and Melcombe Regis went from four members to two: {{seats_removed|int}} borough seats in all. The new boroughs received {{seats_new_boroughs|int}} seats: two each for the {{n_C|int}} towns of Schedule C, one each for the {{n_D|int}} of Schedule D. The rest went to the counties.</p>
+
+<h2><span class="n">02 · Cornwall</span>A county of pocket boroughs</h2>
+<p>No county lost more. {{n_A_cornwall|int}} of the {{n_A|int}} abolished boroughs ({{pct_A_cornwall|p1}}) were Cornish, and {{n_B_cornwall|int}} more Cornish boroughs lost a member. Wiltshire, with Old Sarum, came next with {{n_A_wiltshire|int}}.</p>
+<div class="figure">
+  <div class="fig-h">The abolished boroughs, by historic county</div>
+  <div class="fig-sub">Schedule A of the Reform Act 1832. Bar length is the number of boroughs.</div>
+  <div class="chart" id="counties"></div>
+</div>
+<div class="cards">
+  <div class="card"><b>Cornwall, 1821</b><div class="big">{{cornwall_mps_1821|int}} <span>MPs: two for the county, the rest for its boroughs</span></div></div>
+  <div class="card"><b>Cornwall, 1832</b><div class="big">{{cornwall_mps_1832|int}} <span>MPs after the Act, with the county split into two divisions</span></div></div>
+  <div class="card"><b>Seats lost</b><div class="big">{{seats_lost_cornwall|int}} <span>Cornish borough seats removed by Schedules A and B</span></div></div>
+</div>
+<p>Cornwall's boroughs multiplied under the Tudors: Wikipedia's summary table for the county counts {{cornwall_boroughs_1529|int}} represented boroughs in 1529 and {{cornwall_boroughs_1584|int}} by 1584. By 1831 places such as Mitchell ({{mitchell_voters|int}} voters), St Germans ({{stgermans_voters|int}}) and Bossiney ({{bossiney_voters|int}}) each returned two members. The county's MPs fell from {{cornwall_mps_1821|int}} to {{cornwall_mps_1832|int}} at a stroke (Wikipedia's summary table for the county; the 1821 figure is after Grampound lost its seats).</p>
+
+<h2><span class="n">03 · 1831</span>A handful of voters, two MPs</h2>
+<p>How rotten were they? There was no secret ballot and no register, so electorates are estimates, mostly from the History of Parliament as quoted in each constituency's Wikipedia article. I found a figure for 1831 for {{n_A_voters_known|int}} of the {{n_A|int}} abolished boroughs. Between them those {{n_A_voters_known|int}} boroughs had about {{A_voters_known_total|int}} voters and returned {{A_voters_known_seats|int}} MPs. The median borough had {{A_voters_median|int}} voters, or {{A_voters_per_mp_median|int}} per MP. {{n_A_under_50_voters|int}} had fewer than 50 voters and {{n_A_under_20_voters|int}} fewer than 20.</p>
+<div class="figure">
+  <div class="fig-h">Voters in 1831 against people without a member</div>
+  <div class="fig-sub">Left: the abolished boroughs with the fewest voters in 1831 (each returned two MPs). Right: the largest towns of 1801 that had no MP of their own until 1832. Log scale.</div>
+  <div class="chart" id="contrast"></div>
+  <div class="src">Voters: constituency articles on Wikipedia (election boxes and text). Old Sarum: the constituency article says {{oldsarum_voters|int}} voters at the 1831 election; the table in Wikipedia's Rotten and pocket boroughs gives 7. Towns: the 1801 census table in Wikipedia's List of towns and cities in England by historical population.</div>
+</div>
+<p>The ten smallest electorates in my list add up to {{voters_of_smallest_ten|int}} voters, who chose {{seats_of_smallest_ten|int}} MPs. On the other side of the ledger, {{n_top30_1801_new_1832|int}} of the 30 largest towns in England at the 1801 census appear among the new boroughs of 1832, meaning they had no member of their own before it: Manchester ({{manchester_pop1801|int}} people), Birmingham ({{birmingham_pop1801|int}}), Leeds ({{leeds_pop1801|int}}), Sheffield ({{sheffield_pop1801|int}}) and eight more. Together those {{n_top30_1801_new_1832|int}} towns held {{top1801_new_pop_total|int}} people in 1801. Their people could vote only if they qualified in the county.</p>
+<p>The rotten boroughs were small in people as well as voters. For {{n_A_pop1831_known|int}} of them the articles give a population at the 1831 census. Those {{n_A_pop1831_known|int}} boroughs held {{A_pop1831_total|int}} people and returned {{A_pop1831_total_seats|int}} MPs. Manchester in 1801 already had {{manchester1801_vs_A_pop1831_x|f1}} times as many people as all of them together, thirty years later. The median abolished borough had {{A_pop1831_median|int}} inhabitants, and {{n_A_pop1831_under_1000|int}} had fewer than 1,000.</p>
+<p class="pull">Two MPs for {{gatton_voters|int}} voters at Gatton; none for {{manchester_pop1801|int}} people in Manchester.</p>
+
+<h2><span class="n">04 · Today</span>Villages, a hamlet and a hill</h2>
+<p>So where are they now? I looked up each borough in OS Open Names, the Ordnance Survey's gazetteer, which classes every populated place as a city, town, village, hamlet or suburb. Of the {{n_A|int}} abolished boroughs, {{n_A_town|int}} are towns today. {{n_A_village|int}} are villages. Newtown on the Isle of Wight is a hamlet. {{n_A_absorbed|int}} have been swallowed by bigger places: East Looe and West Looe are the two halves of Looe, Newport is part of Launceston, and Plympton Erle is a suburb of Plymouth. And Old Sarum is still an empty hill, now in the care of English Heritage.</p>
+<div class="figure">
+  <div class="fig-h">The {{n_A|int}} abolished boroughs today</div>
+  <div class="fig-sub">One square per borough, by what OS Open Names calls the place now. Hover or tap a square for its name.</div>
+  <div class="chart" id="waffle"></div>
+  <div class="src">Old Sarum: OS Open Names has a village called Old Sarum, but it is a new housing estate about 1.4 km from the hill, so I count the borough as a deserted site.</div>
+</div>
+<p>Dunwich counts as a village, which flatters it: the borough was once a port of eight parishes, and Wikidata gives the civil parish {{dunwich_pop_today|int}} people today. Gatton, which had {{gatton_houses1831|int}} houses in 1831, is a village in OS Open Names but has no separate population figure in my sources; nor do Mitchell, St Mawes or Newtown.</p>
+<p>For {{n_A_pop_today|int}} of the {{n_A|int}} I have a population today: the Census 2021 built-up area for the {{n_A_pop_today_census_bua|int}} that are towns of 5,000 or more, and otherwise the civil parish figure held on Wikidata ({{n_A_pop_today_wd_parish|int}} places; the census year is not recorded in my extract). The median is {{A_pop_today_median|int}} people. {{n_A_under_1000_today|int}} have fewer than 1,000, and only {{n_A_over_10000_today|int}} have 10,000 or more. All the abolished boroughs together hold about {{A_pop_today_total|int}} people, {{A_today_vs_manchester_pct|p0}} of the population of the Manchester built-up area alone ({{manchester_bua_2021|int}}). The {{n_new_pop_today|int}} new boroughs of 1832 with a figure hold about {{new_pop_today_total|int}}, some {{new_vs_A_today_x|int}} times as many.</p>
+
+<h2><span class="n">05 · Growth</span>Which ones grew?</h2>
+<p>Most of them did grow, just not much by the standards of the industrial north. For {{n_A_growth|int}} abolished boroughs I can set the 1831 census figure beside a figure for today. The median borough grew {{A_growth_median|f1}} times. {{n_A_grew_5x|int}} grew five times or more, led by Amersham ({{A_top_growth.0.pop1831|int}} to {{A_top_growth.0.pop_today|int}}), Wendover ({{A_top_growth.1.pop1831|int}} to {{A_top_growth.1.pop_today|int}}) and Newton, now Newton-le-Willows ({{A_top_growth.2.pop1831|int}} to {{A_top_growth.2.pop_today|int}}).</p>
+<div class="figure">
+  <div class="fig-h">People in 1831 and today, abolished boroughs</div>
+  <div class="fig-sub">Each dot is a borough. Both axes on log scales. Dots below the diagonal have fewer people now than in 1831. Today: Census 2021 built-up area (solid) or civil parish on Wikidata (hollow).</div>
+  <div class="chart" id="growth"></div>
+  <div class="src">The 1831 figure is for the borough as it then was; today's figure is a built-up area or a parish, so this compares unlike areas. Heytesbury is left out (see the caveats below). {{n_A_growth|int}} boroughs shown.</div>
+</div>
+<p>{{n_A_shrank|int}} have fewer people than in 1831: Castle Rising ({{A_shrank.0.pop1831|int}} then, {{A_shrank.0.pop_today|int}} in the parish now), Dunwich ({{A_shrank.1.pop1831|int}} then, {{A_shrank.1.pop_today|int}} now), Orford, Hindon, Tregony, Winchelsea and Stockbridge. All are small places today, and at Dunwich the sea kept taking land. Size in 1831 still ranks size today moderately well (rank correlation {{A_growth_spearman|f2}}).</p>
+
+<h2><span class="n">06 · Money</span>Richer or poorer than their neighbours?</h2>
+<p>Finally, wealth. For each place I took mean household income from the ONS small area estimates for the financial year ending 2023: for towns, the average over the MSOAs (neighbourhoods of about 8,000 people) of its built-up area; for villages, the MSOA whose centre is nearest. I compared that with the population-weighted average of all MSOAs 5 to 25 km away: the place's own neighbourhood.</p>
+<div class="figure">
+  <div class="fig-h">Household income against the surrounding area</div>
+  <div class="fig-sub">Per cent difference between the place and the MSOAs 5 to 25 km around it, FYE2023. Each dot is a borough (Weymouth, which went from four MPs to two, is left out); the bar marks the median of each group. Values beyond 40% are drawn at the edge.</div>
+  <div class="chart" id="income"></div>
+</div>
+<p>The rotten boroughs come out exactly level with their surroundings: the median difference is {{A_income_vs_ring_median|f1}}%, and {{A_n_richer|int}} of the {{A_n_income|int}} are richer than their neighbours ({{A_pct_richer|p0}}). That is what you would expect if they were simply ordinary places, and a signed-rank test agrees (p {{A_income_wilcoxon_p|p}}). The Schedule B towns are a little below their neighbours (median {{B_income_vs_ring_median|f1}}%). The new boroughs of 1832 are clearly poorer than the country around them: median {{new_income_vs_ring_median|f1}}%, with only {{new_n_richer|int}} of {{new_n_income|int}} richer (p {{new_income_wilcoxon_p|p}}). The difference between the rotten boroughs and the new towns is unlikely to be chance (Mann-Whitney p {{A_vs_new_income_mw_p|p}}).</p>
+<p>In plain money: {{n_A_above_ew_median|int}} of the {{n_A|int}} abolished boroughs have a household income above the median MSOA in England and Wales ({{ew_msoa_income_median|gbp}}), against {{n_new_above_ew_median|int}} of the {{n_new|int}} new boroughs. The industrial towns that took the rotten boroughs' seats have become the poorer places, and the old pocket boroughs of the south are, mostly, comfortable small towns and villages.</p>
+
+<h2><span class="n">07 · All of them</span>The full list</h2>
+<p>Every borough in the four schedules and Weymouth. Click a column heading to sort.</p>
+<div class="figure">
+  <div class="controls"><div class="seg" role="group" aria-label="Which schedule to list">
+    <button class="btn" data-tab="A" aria-pressed="true">Abolished (A)</button>
+    <button class="btn" data-tab="B" aria-pressed="false">Halved (B)</button>
+    <button class="btn" data-tab="CD" aria-pressed="false">New (C, D)</button>
+  </div></div>
+  <div class="tablewrap"><table class="t" id="tab"></table></div>
+  <div class="src">Voters and 1831 population: Wikipedia constituency articles (blank where the article gives no figure). Today: Census 2021 built-up area (BUA22), or civil parish population on Wikidata for small places. Income: ONS FYE2023.</div>
+</div>
+
+<h2><span class="n">08 · What this cannot show</span>Gaps and caveats</h2>
+<p><b>Electorates are estimates.</b> Before 1832 there was no electoral register. The 1831 figures come from each borough's Wikipedia article, which mostly quotes the History of Parliament; I found one for {{n_A_voters_known|int}} of {{n_A|int}} abolished boroughs and for very few of the Schedule B boroughs, so I do not compare the two schedules on voters. Where sources disagree (Old Sarum {{oldsarum_voters|int}} or 7; Camelford {{camelford_voters|int}} or 25), I give the constituency article's figure and keep the other in the data file.</p>
+<p><b>Unlike areas.</b> The 1831 borough was often smaller or larger than the parish or built-up area I use today. Heytesbury is the clearest case: its borough had 81 people in 1831 while the parish had 1,394, so I leave it out of the growth comparison. The Wikidata parish figures do not record which census they come from.</p>
+<p><b>What a place is.</b> OS Open Names classes are the Ordnance Survey's, not mine. A "town" may be small (Bishop's Castle and Camelford are towns). I counted each borough once, by its main settlement.</p>
+<p><b>Income.</b> MSOAs hold about 8,000 people, so a village takes the figure for a wider rural area. The comparison ring of 5 to 25 km includes towns and countryside alike. These are descriptions, not causes: nobody grew rich or poor because of the Reform Act.</p>
+
+<div class="note" id="method">
+  <h3>How I did this</h3>
+  <p><b>Schedules.</b> The {{n_A|int}} Schedule A, {{n_B|int}} Schedule B, {{n_C|int}} Schedule C and {{n_D|int}} Schedule D boroughs come from Wikipedia's list of constituencies enfranchised and disfranchised by the Reform Act 1832, checked against the list of the {{n_A|int}} disfranchised boroughs in Wikipedia's Rotten and pocket boroughs. The seat counts reproduce the Act's totals ({{seats_removed|int}} borough seats removed in England, {{seats_new_boroughs|int}} new borough seats).</p>
+  <p><b>1831 figures.</b> From the constituency articles in Wikipedia's Rotten boroughs category ({{n_category_members|int}} pages, {{n_category_constituency_articles|int}} of them constituency articles): the electorate in the box for the 1831 general election where there is one, otherwise a figure stated in the text, or the tables in Cornish rotten and pocket boroughs and Rotten and pocket boroughs. Population and houses from the text, each checked by hand.</p>
+  <p><b>Places.</b> Each borough's main settlement in OS Open Names (populated places), with the county to tell apart places of the same name. Old Sarum sits on the hill, from Wikipedia's coordinates for the site.</p>
+  <p><b>Today.</b> Census 2021 usual residents summed over the LSOAs that best fit each built-up area (BUA22), used for places of 5,000 or more; for smaller places the civil parish population on Wikidata. Income: ONS income estimates for small areas, mean total household income, FYE2023. Tests: Wilcoxon signed-rank (is the median difference zero?) and Mann-Whitney (do two groups differ?).</p>
+</div>
+<div class="cta">
+  <a class="p" href="https://github.com/Tristan-Hotham/rotten-boroughs">Data and code</a>
+  <a href="https://doi.org/10.5281/zenodo.23691900">Read the paper</a>
+  <a href="https://blog.tristanhotham.com/2026/10/27/rotten-boroughs/">Blog post</a>
+  <a href="https://tristan-hotham.github.io/canal-mania/">Canal Mania</a>
+  <a href="https://blog.tristanhotham.com/">More history data</a>
+</div>
+<footer>
+  <p>Dr Tristan Hotham, Independent researcher. ORCID 0000-0003-4931-9349. Cite as: Hotham, T. (2026) Rotten Boroughs: Where Are They Now? England's Disfranchised Boroughs of 1832 and Their Places Today. Zenodo. https://doi.org/10.5281/zenodo.23691900</p>
+  <p>I wrote the text, with drafting and editing assistance from Claude (Anthropic), which also helped prepare the analysis code. I reviewed and checked all text and results.</p>
+  <p>Borough lists, 1831 figures and town tables: Wikipedia, CC BY-SA 4.0. Wikidata, CC0. Census 2021 and income estimates: Office for National Statistics, licensed under the Open Government Licence v3.0. OS Open Names and ONS geography: contains OS data © Crown copyright and database right 2026. Tiles © Esri.</p>
+  <p>Data and page text: CC BY-SA 4.0 (because of the Wikipedia material). Code: MIT licence.</p>
+</footer>
+</div>
+<div class="tip" id="tip"></div>
+<button class="btn theme" id="theme" aria-label="Toggle dark mode">◐</button>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const D = /*SITE*/;
+const R = /*RESULTS*/;
+const NS = "http://www.w3.org/2000/svg";
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const el = (t, a = {}, p) => { const e = document.createElementNS(NS, t); for (const k in a) if (a[k] != null) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
+const fmt = n => n == null ? "" : Math.round(n).toLocaleString("en-GB");
+const gbp = n => n == null ? "" : "£" + fmt(n);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const tip = document.getElementById("tip");
+function showTip(h, x, y) { tip.innerHTML = h; tip.style.display = "block"; const w = tip.offsetWidth; x = Math.max(w / 2 + 8, Math.min(innerWidth - w / 2 - 8, x)); tip.style.left = x + scrollX + "px"; tip.style.top = y + scrollY + "px"; }
+function hideTip() { tip.style.display = "none"; }
+function hover(node, h) { node.style.cursor = "pointer"; node.setAttribute("tabindex", "0"); const s = () => { const r = node.getBoundingClientRect(); showTip(h, r.left + r.width / 2, r.top); }; node.addEventListener("pointerenter", s); node.addEventListener("pointerleave", hideTip); node.addEventListener("focus", s); node.addEventListener("blur", hideTip); node.addEventListener("click", e => { s(); e.stopPropagation(); }); }
+document.addEventListener("click", hideTip);
+const redraws = [];
+function resp(box, render) { let last = 0; const go = (force) => { const w = Math.max(280, Math.round(box.clientWidth)); if (!force && Math.abs(w - last) < 4) return; last = w; box.innerHTML = ""; render(w, w < 560); }; new ResizeObserver(() => go()).observe(box); go(); redraws.push(() => go(true)); }
+const lbl = (svg, x, y, s, cls = "lab", anchor = "start") => { const t = el("text", { x, y, class: cls, "text-anchor": anchor }, svg); t.textContent = s; return t; };
+const isDark = () => { const r = document.documentElement; return r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; };
+document.getElementById("theme").onclick = () => { const r = document.documentElement; r.dataset.theme = isDark() ? "light" : "dark"; redraws.forEach(f => f()); };
+
+const B = D.map(a => ({ name: a[0], s: a[1], county: a[2], lat: a[3], lng: a[4], sb: a[5], sa: a[6], p31: a[7], h31: a[8], v31: a[9], vsrc: a[10], cls: a[11], pnow: a[12], psrc: a[13], inc: a[14], rel: a[15], p01: a[16], r01: a[17], la: a[18], region: a[19], how: a[20] }));
+const CLS = [["Town", "--c-town"], ["Village", "--c-vill"], ["Hamlet", "--c-ham"], ["Part of a larger town", "--c-part"], ["Deserted site", "--c-site"]];
+const clsVar = c => (CLS.find(x => x[0] === c) || ["", "--c-town"])[1];
+const SCH = { A: "Schedule A: abolished", B: "Schedule B: cut to one MP", W: "Weymouth: four MPs to two", C: "Schedule C: new, two MPs", D: "Schedule D: new, one MP" };
+
+/* hero mark: a wax seal with the year */
+(() => { const g = document.getElementById("heroMark");
+  const pts = []; for (let i = 0; i < 40; i++) { const a = i / 40 * Math.PI * 2, r = i % 2 ? 84 : 92; pts.push([100 + r * Math.cos(a), 100 + r * Math.sin(a)]); }
+  el("polygon", { points: pts.map(p => p.join(",")).join(" "), fill: "var(--hot)" }, g);
+  el("circle", { cx: 100, cy: 100, r: 70, fill: "none", stroke: "var(--bg)", "stroke-width": 2.5, opacity: .7 }, g);
+  const t = el("text", { x: 100, y: 96, "text-anchor": "middle", style: "font:900 40px var(--display);fill:var(--bg)" }, g); t.textContent = "1832";
+  const t2 = el("text", { x: 100, y: 124, "text-anchor": "middle", style: "font:500 13px var(--mono);fill:var(--bg);letter-spacing:.2em" }, g); t2.textContent = "REFORM";
+})();
+
+/* ===== map ===== */
+let lmap, tiles, marks = [], show = "all", colBy = "sched";
+function tileUrl() { return `https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_${isDark() ? "Dark" : "Light"}_Gray_Base/MapServer/tile/{z}/{y}/{x}`; }
+function visible(b) { return show === "all" || (show === "A" && b.s === "A") || (show === "B" && (b.s === "B" || b.s === "W")) || (show === "CD" && (b.s === "C" || b.s === "D")); }
+function mstyle(b) {
+  const z = lmap.getZoom(), f = Math.pow(1.25, Math.min(z, 11) - 6), on = visible(b);
+  if (!on) return { opacity: 0, fillOpacity: 0, radius: 0 };
+  if (b.s === "A") return { radius: 6.5 * f, fillColor: colBy === "today" ? css(clsVar(b.cls)) : css("--hot"), fillOpacity: 0.9, color: css("--bg"), weight: 1.2, opacity: 1 };
+  if (b.s === "B" || b.s === "W") return { radius: 5.5 * f, fillColor: css("--halfc"), fillOpacity: 0.15, color: css("--hot"), weight: 2, opacity: 1 };
+  const r = b.pnow ? Math.max(5, Math.min(18, Math.sqrt(b.pnow) / 45)) : 6;
+  return { radius: r * f, fillColor: css("--oth"), fillOpacity: 0.55, color: css("--oth"), weight: 1.2, opacity: 0.9 };
+}
+function popup(b) { const row = (k, v) => v == null || v === "" ? "" : `<dt>${k}</dt><dd>${v}</dd>`;
+  return `<div class="pop"><b class="t">${esc(b.name)}</b><div class="c">${esc(b.county)} · ${SCH[b.s]}</div><dl>${row("MPs before / after", b.sb + " / " + b.sa)}${row("Voters 1831", b.v31 != null ? fmt(b.v31) : null)}${row("People 1831", b.p31 != null ? fmt(b.p31) : null)}${row("Houses 1831", b.h31 != null ? fmt(b.h31) : null)}${row("People 1801", b.p01 ? fmt(b.p01) + " (ranked " + b.r01 + ")" : null)}${row("Today", esc(b.cls || ""))}${row("People today", b.pnow != null ? fmt(b.pnow) : "no figure")}${row("Income FYE2023", gbp(b.inc))}${row("vs 5 to 25 km", b.rel != null ? (b.rel > 0 ? "+" : "") + b.rel.toFixed(1) + "%" : null)}</dl><div class="note">${b.v31 != null ? "Voters: " + esc(b.vsrc) + ". " : ""}${b.pnow != null ? "Today: " + esc(b.psrc) + ". " : ""}Placed by ${b.how}.</div></div>`; }
+function legend() {
+  const L = document.getElementById("legend");
+  const a = colBy === "today" ? CLS.map(c => `<span><i style="background:var(${c[1]})"></i>${c[0]}</span>`).join("") : `<span><i style="background:var(--hot)"></i>Abolished (Schedule A)</span>`;
+  L.innerHTML = a + `<span><i style="background:transparent;border:2px solid var(--hot)"></i>Cut to one MP (B, and Weymouth)</span><span><i style="background:var(--oth);opacity:.7"></i>New in 1832 (C and D), sized by people today</span>`;
+}
+function restyle() { marks.forEach(m => m.setStyle(mstyle(m.b))); legend(); }
+(() => {
+  if (!window.L) { document.getElementById("lmap").innerHTML = '<p style="padding:16px">The map library did not load.</p>'; return; }
+  lmap = L.map("lmap", { preferCanvas: true, zoomSnap: 0.5, minZoom: 5, maxZoom: 14, scrollWheelZoom: false });
+  lmap.fitBounds([[50.0, -5.6], [55.0, 1.8]], { padding: innerWidth < 600 ? [0, 0] : [10, 10] });
+  tiles = L.tileLayer(tileUrl(), { attribution: 'Tiles &copy; Esri &middot; Places: OS Open Names', maxZoom: 16 }).addTo(lmap);
+  const rend = L.canvas({ padding: 0.5, tolerance: 5 });
+  [...B].sort((a, b) => ({ C: 0, D: 0, W: 1, B: 1, A: 2 }[a.s] - { C: 0, D: 0, W: 1, B: 1, A: 2 }[b.s]) || (b.pnow || 0) - (a.pnow || 0)).forEach(b => {
+    const m = L.circleMarker([b.lat, b.lng], { renderer: rend }); m.b = b; m.setStyle(mstyle(b)); m.bindPopup(() => popup(b), { maxWidth: 300 }); m.addTo(lmap); marks.push(m); });
+  lmap.on("zoomend", restyle);
+  lmap.on("click focus", () => lmap.scrollWheelZoom.enable());
+  lmap.getContainer().addEventListener("mouseleave", () => lmap.scrollWheelZoom.disable());
+  document.querySelectorAll("[data-show]").forEach(b => b.onclick = () => { show = b.dataset.show; document.querySelectorAll("[data-show]").forEach(x => x.setAttribute("aria-pressed", x === b)); restyle(); });
+  document.querySelectorAll("[data-col]").forEach(b => b.onclick = () => { colBy = b.dataset.col; document.querySelectorAll("[data-col]").forEach(x => x.setAttribute("aria-pressed", x === b)); restyle(); });
+  restyle();
+  redraws.push(() => { tiles.setUrl(tileUrl()); restyle(); });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => redraws.forEach(f => f()));
+})();
+
+/* ===== counties ===== */
+resp(document.getElementById("counties"), (W, nar) => {
+  const rows = Object.entries(R.A_by_county), rowH = 24, m = { l: nar ? 128 : 150, r: 40, t: 4, b: 6 }, H = rows.length * rowH + m.t + m.b;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Bar chart of abolished boroughs by county; Cornwall has 13" }, document.getElementById("counties"));
+  const max = rows[0][1], X = v => m.l + v / max * (W - m.l - m.r);
+  rows.forEach(([c, n], i) => { const y = m.t + i * rowH;
+    lbl(svg, m.l - 8, y + 16, c, "lab", "end");
+    const names = B.filter(b => b.s === "A" && b.county === c).map(b => b.name);
+    for (let k = 0; k < n; k++) { const r = el("rect", { x: X(k) + 1, y: y + 5, width: Math.max(2, X(1) - m.l - 3), height: rowH - 9, rx: 2, fill: c === "Cornwall" ? "var(--hot)" : "var(--c-town)", opacity: c === "Cornwall" ? 1 : 0.72 }, svg); hover(r, `<b>${esc(names[k])}</b><br>${esc(c)}`); }
+    lbl(svg, X(n) + 6, y + 16, n, "lab b"); });
+});
+
+/* ===== contrast: voters vs unrepresented towns ===== */
+resp(document.getElementById("contrast"), (W, nar) => {
+  const left = R.smallest_electorates.slice(0, 7), right = R.top1801_new.slice(0, 7);
+  const rowH = 30, H = 7 * rowH + 50, mid = W / 2, gap = nar ? 6 : 14;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Left: smallest electorates of abolished boroughs in 1831. Right: largest towns of 1801 with no MP of their own." }, document.getElementById("contrast"));
+  const lw = mid - gap, S = v => Math.log10(v) / Math.log10(100000) * (lw - (nar ? 74 : 110));
+  lbl(svg, mid - gap, 14, "Voters, 1831 (two MPs each)", "lab b h", "end");
+  lbl(svg, mid + gap, 14, "People, 1801 (no MP)", "lab b o", "start");
+  el("line", { x1: mid, x2: mid, y1: 22, y2: H - 8, stroke: "var(--fg)", "stroke-width": 1.5 }, svg);
+  left.forEach((r, i) => { const y = 30 + i * rowH, w = S(Math.max(r.voters, 1.5));
+    const b = el("rect", { x: mid - gap - w, y, width: w, height: rowH - 10, rx: 2, fill: "var(--hot)" }, svg);
+    hover(b, `<b>${esc(r.name)}</b><br>${r.voters} voters in 1831<br>${r.seats} MPs`);
+    lbl(svg, mid - gap - w - 6, y + 14, `${r.name.replace(" (Cornwall)", "")} ${r.voters}`, nar ? "lab s" : "lab", "end"); });
+  right.forEach((r, i) => { const y = 30 + i * rowH, w = S(r.pop1801);
+    const b = el("rect", { x: mid + gap, y, width: w, height: rowH - 10, rx: 2, fill: "var(--oth)" }, svg);
+    hover(b, `<b>${esc(r.name)}</b><br>${fmt(r.pop1801)} people in 1801 (ranked ${r.rank} in England)<br>No MP of its own until 1832`);
+    lbl(svg, mid + gap + w + 6, y + 14, `${r.name.replace("Stoke-upon-Trent", "Stoke")} ${fmt(r.pop1801)}`, nar ? "lab s" : "lab", "start"); });
+  lbl(svg, mid, H - 0, "log scale, same on both sides", "lab m s", "middle");
+});
+
+/* ===== waffle ===== */
+resp(document.getElementById("waffle"), (W, nar) => {
+  const A = B.filter(b => b.s === "A"), order = CLS.map(c => c[0]);
+  A.sort((a, b) => order.indexOf(a.cls) - order.indexOf(b.cls) || a.name.localeCompare(b.name));
+  const cols = nar ? 8 : 14, sz = Math.min(42, (W - (nar ? 0 : 200)) / cols - 4), rows = Math.ceil(A.length / cols), H = rows * (sz + 4) + 6;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${Math.max(H, nar ? 0 : 150) + (nar ? 120 : 0)}`, role: "img", "aria-label": "56 squares, one per abolished borough, coloured by what the place is today" }, document.getElementById("waffle"));
+  A.forEach((b, i) => { const x = (i % cols) * (sz + 4), y = Math.floor(i / cols) * (sz + 4);
+    const r = el("rect", { x, y, width: sz, height: sz, rx: 3, fill: `var(${clsVar(b.cls)})` }, svg);
+    hover(r, `<b>${esc(b.name)}</b><br>${esc(b.cls)}${b.pnow != null ? "<br>" + fmt(b.pnow) + " people today" : ""}`); });
+  const lx = nar ? 0 : cols * (sz + 4) + 18, ly = nar ? H + 18 : 14;
+  CLS.forEach((c, i) => { const n = A.filter(b => b.cls === c[0]).length, y = ly + i * 22;
+    el("rect", { x: lx, y: y - 11, width: 13, height: 13, rx: 2, fill: `var(${c[1]})` }, svg);
+    lbl(svg, lx + 20, y, `${c[0]}  ${n}`, "lab"); });
+});
+
+/* ===== growth scatter ===== */
+resp(document.getElementById("growth"), (W, nar) => {
+  const pts = B.filter(b => b.s === "A" && b.p31 > 0 && b.pnow != null && b.name !== "Heytesbury");
+  const H = nar ? 360 : 440, m = { l: 54, r: 14, t: 12, b: 40 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Scatter of 1831 population against population today for abolished boroughs" }, document.getElementById("growth"));
+  const x0 = 1.7, x1 = 3.5, y0 = 1.9, y1 = 4.6;
+  const X = v => m.l + (Math.log10(v) - x0) / (x1 - x0) * (W - m.l - m.r), Y = v => H - m.b - (Math.log10(v) - y0) / (y1 - y0) * (H - m.t - m.b);
+  [100, 300, 1000, 3000].forEach(t => { el("line", { x1: X(t), x2: X(t), y1: m.t, y2: H - m.b, stroke: "var(--rule)" }, svg); lbl(svg, X(t), H - m.b + 16, fmt(t), "lab m s", "middle"); });
+  [100, 1000, 10000].forEach(t => { el("line", { x1: m.l, x2: W - m.r, y1: Y(t), y2: Y(t), stroke: "var(--rule)" }, svg); lbl(svg, m.l - 6, Y(t) + 4, t >= 1000 ? fmt(t / 1000) + "k" : fmt(t), "lab m s", "end"); });
+  [[1, "same size"], [10, "10 times"]].forEach(([k, s]) => { const a = Math.max(10 ** x0, 10 ** y0 / k), b = Math.min(10 ** x1, 10 ** y1 / k);
+    el("line", { x1: X(a), y1: Y(a * k), x2: X(b), y2: Y(b * k), stroke: "var(--fg)", "stroke-dasharray": "3 4", opacity: .6 }, svg);
+    lbl(svg, X(a) + 6, Y(a * k) - 6, s, "lab m s", "start"); });
+  lbl(svg, (m.l + W - m.r) / 2, H - 4, "People in 1831 (the borough)", "lab m s", "middle");
+  const yl = lbl(svg, 0, 0, "People today", "lab m s", "middle"); yl.setAttribute("transform", `translate(12 ${(m.t + H - m.b) / 2}) rotate(-90)`);
+  const show = nar ? ["Amersham", "Dunwich", "Castle Rising", "Newton", "Bramber"] : ["Amersham", "Wendover", "Newton", "Dunwich", "Castle Rising", "Orford", "Bramber", "Gatton", "Saltash", "Seaford", "Mitchell"];
+  pts.forEach(b => { const cx = X(b.p31), cy = Y(b.pnow), solid = b.psrc.startsWith("Census"), c = b.pnow < b.p31 ? "var(--hot)" : "var(--c-town)";
+    const d = el("circle", { cx, cy, r: 5.5, fill: solid ? c : "var(--bg)", stroke: c, "stroke-width": 1.8 }, svg);
+    hover(d, `<b>${esc(b.name)}</b><br>1831: ${fmt(b.p31)}<br>Today: ${fmt(b.pnow)} (${esc(b.psrc)})<br>${(b.pnow / b.p31).toFixed(1)}×`);
+    const OFF = { Amersham: [-8, -6, "end"], Saltash: [6, 16, "start"], Wendover: [-8, -6, "end"], Newton: [-8, 4, "end"] };
+    if (show.includes(b.name)) { const o = OFF[b.name] || [8, 4, "start"]; lbl(svg, cx + o[0], cy + o[1], b.name, "lab s", o[2]); } });
+});
+
+/* ===== income strip ===== */
+resp(document.getElementById("income"), (W, nar) => {
+  const G = [["Abolished (A)", B.filter(b => b.s === "A"), "--hot"], ["Halved (B)", B.filter(b => b.s === "B"), "--halfc"], ["New in 1832", B.filter(b => b.s === "C" || b.s === "D"), "--oth"]];
+  const rowH = nar ? 92 : 100, m = { l: nar ? 8 : 120, r: 14, t: 10, b: 30 }, H = G.length * rowH + m.t + m.b;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Strip chart of each borough's income relative to its surroundings, by group" }, document.getElementById("income"));
+  const lim = 40, X = v => m.l + (Math.max(-lim, Math.min(lim, v)) + lim) / (2 * lim) * (W - m.l - m.r);
+  [-40, -20, 0, 20, 40].forEach(t => { el("line", { x1: X(t), x2: X(t), y1: m.t, y2: H - m.b, stroke: t === 0 ? "var(--fg)" : "var(--rule)" }, svg); lbl(svg, X(t), H - m.b + 16, (t > 0 ? "+" : "") + t + "%", "lab m s", "middle"); });
+  G.forEach(([name, rows, c], i) => { const y = m.t + i * rowH, cy = y + rowH / 2 + (nar ? 8 : 0);
+    lbl(svg, nar ? m.l : m.l - 10, nar ? y + 14 : cy + 4, name, "lab b", nar ? "start" : "end");
+    const vals = rows.filter(r => r.rel != null).map(r => r.rel).sort((a, b) => a - b), med = vals.length % 2 ? vals[(vals.length - 1) / 2] : (vals[vals.length / 2 - 1] + vals[vals.length / 2]) / 2;
+    const used = {};
+    rows.filter(r => r.rel != null).sort((a, b) => a.rel - b.rel).forEach(r => { const bx = Math.round(X(r.rel) / 9); used[bx] = (used[bx] || 0) + 1; const k = used[bx] - 1, off = (k % 2 ? 1 : -1) * Math.ceil(k / 2) * 9;
+      const d = el("circle", { cx: X(r.rel), cy: cy + Math.max(-30, Math.min(30, off)), r: 4.2, fill: `var(${c})`, opacity: .85, stroke: "var(--bg)", "stroke-width": 0.8 }, svg);
+      hover(d, `<b>${esc(r.name)}</b><br>${gbp(r.inc)} household income<br>${r.rel > 0 ? "+" : ""}${r.rel.toFixed(1)}% against 5 to 25 km`); });
+    el("line", { x1: X(med), x2: X(med), y1: cy - 34, y2: cy + 34, stroke: "var(--fg)", "stroke-width": 3 }, svg);
+    lbl(svg, X(med) + 6, cy - 26, `median ${med > 0 ? "+" : ""}${med.toFixed(1)}%`, "lab s b"); });
+});
+
+/* ===== table ===== */
+let tabWhich = "A", sortK = "name", sortDir = 1;
+const COLS = [["name", "Borough", 0], ["v31", "Voters 1831", 2], ["p31", "People 1831", 2], ["cls", "Today", 0], ["pnow", "People today", 2], ["inc", "Income", 2], ["rel", "vs area", 2]];
+function drawTab() {
+  const rows = B.filter(b => tabWhich === "A" ? b.s === "A" : tabWhich === "B" ? (b.s === "B" || b.s === "W") : (b.s === "C" || b.s === "D"));
+  rows.sort((a, b) => { const x = a[sortK], y = b[sortK]; if (x == null && y == null) return 0; if (x == null) return 1; if (y == null) return -1; return (typeof x === "string" ? x.localeCompare(y) : x - y) * sortDir; });
+  const cols = tabWhich === "CD" ? COLS.filter(c => !["v31", "p31"].includes(c[0])).concat([["p01", "People 1801", 2]]) : COLS;
+  document.getElementById("tab").innerHTML = `<thead><tr>${cols.map(c => `<th class="${c[2] === 2 ? "num" : ""}${c[2] === 1 ? " wide" : ""}" data-k="${c[0]}">${c[1]}${sortK === c[0] ? (sortDir > 0 ? " ▲" : " ▼") : ""}</th>`).join("")}</tr></thead><tbody>` +
+    rows.map(b => `<tr>${cols.map(c => { const v = b[c[0]];
+      if (c[0] === "name") return `<td><span class="dot" style="background:var(${b.s === "A" ? clsVar(b.cls) : b.s === "C" || b.s === "D" ? "--oth" : "--halfc"})"></span>${esc(b.name)}<small>${esc(b.la || "")}</small></td>`;
+      if (c[0] === "rel") return `<td class="num">${v == null ? "" : (v > 0 ? "+" : "") + v.toFixed(1) + "%"}</td>`;
+      if (c[0] === "inc") return `<td class="num">${gbp(v)}</td>`;
+      if (c[2] === 2) return `<td class="num">${v == null ? "" : fmt(v)}</td>`;
+      return `<td class="${c[2] === 1 ? "wide" : ""}">${esc(v || "")}</td>`; }).join("")}</tr>`).join("") + "</tbody>";
+  document.querySelectorAll("#tab th").forEach(th => th.onclick = () => { const k = th.dataset.k; if (sortK === k) sortDir = -sortDir; else { sortK = k; sortDir = typeof B[0][k] === "string" ? 1 : -1; } drawTab(); });
+}
+document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { tabWhich = b.dataset.tab; document.querySelectorAll("[data-tab]").forEach(x => x.setAttribute("aria-pressed", x === b)); drawTab(); });
+drawTab();
+</script>
+</body>
+</html>
